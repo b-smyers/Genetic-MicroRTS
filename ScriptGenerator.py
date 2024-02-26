@@ -22,15 +22,15 @@ def clean_script():
 
 class Program_Line:
     def __init__(self):
-        self.line_type = "null"
+        self.line_type = "none"
         self.file_index = 0
         self.function_index = 0
 
     # Generates a random line based on line type
     def __init__(self, line_type):
-        self.line_type = line_type # (e.g. Action, ForAction, Boolean, ForBoolean, null, For, Else,')', or '))')
+        self.line_type = line_type # (e.g. Action, ForAction, Boolean, ForBoolean, none, For, Else,')', or '))')
 
-        if self.line_type != "null" and self.line_type != "For" and self.line_type != ")" and self.line_type != "))" and self.line_type != "Else":
+        if self.line_type != "none" and self.line_type != "For" and self.line_type != ")" and self.line_type != "))" and self.line_type != "Else":
             # generate random file and function indexes
             files = [f for f in os.listdir(f'{LasiFunctionsDir}/{self.line_type}Functions') if os.path.isfile(os.path.join(f'{LasiFunctionsDir}/{self.line_type}Functions', f))]
             self.file_index = random.randint(0, len(files)-1) # Get random file
@@ -46,16 +46,21 @@ class Program_Line:
     # Reads in program line from gene string
     def load_gene_string(self, gene_string):
         params = gene_string.split(",")
-        self.line_type = params[0]
+        self.line_type = str(params[0])
         self.file_index = int(params[1])
         self.function_index = int(params[2])
     
     def mutate(self):
-        pass
+        if self.line_type == "none" or self.line_type == "For" or self.line_type == ")" or self.line_type == "))" or self.line_type == "Else":
+            return
+        files = [f for f in os.listdir(f'{LasiFunctionsDir}/{self.line_type}Functions') if os.path.isfile(os.path.join(f'{LasiFunctionsDir}/{self.line_type}Functions', f))]
+        directory = f'{LasiFunctionsDir}/{self.line_type}Functions/'
+        functions = parse_to_array(os.path.join(directory, files[self.file_index]))
+        self.function_index = random.randint(0, len(functions)-1)
     
     def get_line(self):
         # Get the line
-        if self.line_type != "null":
+        if self.line_type != "none":
             if self.line_type == "ForBoolean" or self.line_type == "Boolean":
                 files = [f for f in os.listdir(f'{LasiFunctionsDir}/{self.line_type}Functions') if os.path.isfile(os.path.join(f'{LasiFunctionsDir}/{self.line_type}Functions', f))]
                 directory = f'{LasiFunctionsDir}/{self.line_type}Functions/'
@@ -88,9 +93,23 @@ class Program_Line:
 
 
 class RTS_Script:
-    def __init__(self, line_limit):
-        self.line_limit = line_limit
+    def __init__(self):
         self.Program_Lines = []
+
+    def reset(self):
+        self.Program_Lines.clear()
+
+    def load_chromosome(self, chromosome_str):
+        self.reset()
+        genes = chromosome_str.split(" ")
+        for gene_str in genes:
+            self.Program_Lines.append(Program_Line("none"))
+            self.Program_Lines[-1].load_gene_string(gene_str)
+
+    def mutate(self, mutation_rate):
+        for Line in self.Program_Lines:
+            if random.random() < mutation_rate:
+                Line.mutate()
 
     def print_script(self):
         print("Script:\n```")
@@ -114,7 +133,7 @@ class RTS_Script:
             for Line in self.Program_Lines:
                 file.write(Line.get_gene() + ' ')
     
-    def generate_random_script(self):
+    def generate_random_script(self, line_limit):
         # List of line options by scenario
         line_options          = ["ACTION", "for(u) (", "if("]
         for_line_options      = ["ACTION", "ACTION", "ACTION", "ACTION", "ACTION", "ACTION", ")", "if("]
@@ -127,7 +146,7 @@ class RTS_Script:
         is_for = False
         is_if = False
         is_else = False
-        for i in range(self.line_limit):
+        for i in range(line_limit):
             # Make choice (Don't allow having nested loops or ifs)
             choice_options = line_options
             if is_for and is_if:
@@ -182,14 +201,20 @@ class RTS_Script:
 
 
 def main():
-    new_rts_script = RTS_Script(10)
-    new_rts_script.generate_random_script()
+    new_rts_script = RTS_Script()
+    new_rts_script.generate_random_script(10)
 
     new_rts_script.print_script()
     new_rts_script.print_chromosomes()
 
     new_rts_script.log_script()
     new_rts_script.log_chromosomes()
+
+    new_rts_script.load_chromosome(parse_to_array("./Output/Chromosome.txt")[0])
+
+    new_rts_script.mutate(0.5)
+    new_rts_script.print_script()
+    new_rts_script.print_chromosomes()
 
 
 
