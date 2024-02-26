@@ -91,12 +91,6 @@ class RTS_Script:
     def __init__(self, line_limit):
         self.line_limit = line_limit
         self.Program_Lines = []
-        self.chromosomes = {
-            "ActionFunctionsGenes":     ['null,0,0' for _ in range(line_limit)],
-            "ForActionFunctionsGenes":  ['null,0,0' for _ in range(line_limit)],
-            "BooleanFunctionsGenes":    ['null,0,0' for _ in range(line_limit)],
-            "ForBooleanFunctionsGenes": ['null,0,0' for _ in range(line_limit)]
-        }
 
     def print_script(self):
         print("Script:\n```")
@@ -105,22 +99,20 @@ class RTS_Script:
         print("```")
 
     def print_chromosomes(self):
-        print("Action Function Genes: \n"      + str(self.chromosomes["ActionFunctionsGenes"]))
-        print("For Action Function Genes: \n"  + str(self.chromosomes["ForActionFunctionsGenes"]))
-        print("Boolean Function Genes: \n"     + str(self.chromosomes["BooleanFunctionsGenes"]))
-        print("For Boolean Function Genes: \n" + str(self.chromosomes["ForBooleanFunctionsGenes"]))
+        print("Chromosome:\n```")
+        for Line in self.Program_Lines:
+            print(Line.get_gene() + ' ')
+        print("```")
 
     def log_script(self):
         with open("./Output/Script.txt", "w") as file:
             for Line in self.Program_Lines:
-                file.write(Line.get_line())
+                file.write(Line.get_line() + ' ')
     
     def log_chromosomes(self):
-        with open("./Output/Chromosomes.txt", "w") as file:
-            file.write(str(self.chromosomes["ActionFunctionsGenes"])     + '\n')
-            file.write(str(self.chromosomes["ForActionFunctionsGenes"])  + '\n')
-            file.write(str(self.chromosomes["BooleanFunctionsGenes"])    + '\n')
-            file.write(str(self.chromosomes["ForBooleanFunctionsGenes"]) + '\n')
+        with open("Output/Chromosome.txt", "w") as file:
+            for Line in self.Program_Lines:
+                file.write(Line.get_gene() + ' ')
     
     def generate_random_script(self):
         # List of line options by scenario
@@ -194,10 +186,10 @@ def main():
     new_rts_script.generate_random_script()
 
     new_rts_script.print_script()
-    # new_rts_script.print_chromosomes()
+    new_rts_script.print_chromosomes()
 
     new_rts_script.log_script()
-    # new_rts_script.log_chromosomes()
+    new_rts_script.log_chromosomes()
 
 
 
