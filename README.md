@@ -1,4 +1,5 @@
-# Genetic-MicroRTS
+# Genetic-MicroRTS [WIP]
+This project is not finished and only offers a partial amount of features.
 This project's main goal is to use the native abstraction and synthesis packages of MicroRTS to create a genetically optimized MircoRTS program.
 
 ## Requirements
